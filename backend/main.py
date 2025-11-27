@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
 import os
+import json
 from datetime import datetime
 import firebase_admin
 from firebase_admin import credentials, firestore
