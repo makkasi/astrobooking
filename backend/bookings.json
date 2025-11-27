@@ -1,0 +1,29 @@
+[
+  {
+    "date": "2023-12-01",
+    "hour": 10,
+    "name": "Test User",
+    "email": "test@example.com",
+    "phone": "123456",
+    "notes": null,
+    "timestamp": "2025-11-27T10:01:59.210474"
+  },
+  {
+    "date": "2023-12-05",
+    "hour": 11,
+    "name": "Firebase User",
+    "email": "fire@example.com",
+    "phone": "555-FIRE",
+    "notes": null,
+    "timestamp": "2025-11-27T10:17:08.750676"
+  },
+  {
+    "date": "2023-12-06",
+    "hour": 10,
+    "name": "Email Test",
+    "email": "kastroguru@gmail.com",
+    "phone": "123-EMAIL",
+    "notes": null,
+    "timestamp": "2025-11-27T10:46:21.772844"
+  }
+]

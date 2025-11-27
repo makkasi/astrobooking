@@ -1,0 +1,63 @@
+<section id="booking-section" class="booking-section">
+    <div class="container">
+        <h2>Запазете час</h2>
+        <p class="section-desc">Изберете удобен за вас ден и час за "Обща астрологична консултация".</p>
+
+        <div class="booking-container">
+            <!-- Date Selection -->
+            <div class="step">
+                <label for="date">Изберете дата:</label>
+                <input type="date" id="date" (change)="onDateChange($event)" [min]="'2023-01-01'">
+            </div>
+
+            <!-- Loading Indicator -->
+            <div *ngIf="loading" class="loading">Зареждане...</div>
+
+            <!-- Availability Message -->
+            <div *ngIf="dayBooked && !loading && !successMessage" class="alert warning">
+                За съжаление, този ден е напълно резервиран. Моля, изберете друга дата.
+            </div>
+
+            <!-- Time Slots -->
+            <div class="step" *ngIf="selectedDate && !dayBooked && !loading">
+                <h3>Налични часове за {{ selectedDate }}:</h3>
+                <div class="slots-grid">
+                    <button *ngFor="let hour of [9,10,11,12,13,14,15,16,17]" [disabled]="!availableHours.includes(hour)"
+                        [class.selected]="selectedHour === hour" (click)="selectHour(hour)">
+                        {{ hour }}:00
+                    </button>
+                </div>
+            </div>
+
+            <!-- Booking Form -->
+            <div class="booking-form" *ngIf="selectedHour !== null">
+                <h3>Вашите данни ({{ selectedHour }}:00)</h3>
+                <form (ngSubmit)="submitBooking()">
+                    <div class="form-group">
+                        <label for="name">Име</label>
+                        <input type="text" id="name" [(ngModel)]="bookingForm.name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" [(ngModel)]="bookingForm.email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Телефон</label>
+                        <input type="tel" id="phone" [(ngModel)]="bookingForm.phone" name="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">Бележки (опционално)</label>
+                        <textarea id="notes" [(ngModel)]="bookingForm.notes" name="notes"></textarea>
+                    </div>
+
+                    <button type="submit" [disabled]="loading">Потвърди резервацията</button>
+                </form>
+            </div>
+
+            <!-- Messages -->
+            <div *ngIf="successMessage" class="alert success">{{ successMessage }}</div>
+            <div *ngIf="errorMessage" class="alert error">{{ errorMessage }}</div>
+
+        </div>
+    </div>
+</section>

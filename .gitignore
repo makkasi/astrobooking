@@ -1,0 +1,37 @@
+# Secrets
+backend/serviceAccountKey.json
+backend/.env
+astrobooking-5a8d6-firebase-adminsdk-fbsvc-5037e63e8c.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+backend/venv/
+backend/__pycache__/
+
+# Angular
+frontend/dist/
+frontend/tmp/
+frontend/out-tsc/
+frontend/bazel-out/
+frontend/test-main.js
+frontend/test.js
+frontend/debug.log
+frontend/lint.log
+frontend/.sass-cache/
+frontend/connect.lock
+frontend/coverage/
+frontend/node_modules/
+frontend/.idea/
+frontend/.project
+frontend/.classpath
+frontend/.cproject
+frontend/*.launch
+frontend/.settings/
+frontend/.vscode/
+
+# Misc
+.DS_Store
+.idea/
+.vscode/
