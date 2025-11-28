@@ -284,6 +284,7 @@ def send_product_email(email: str, name: str, product: dict):
     except Exception as e:
         print(f"Error sending product email: {e}")
 
+from fastapi import File, UploadFile, Form
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseUpload
 from google.oauth2 import service_account
