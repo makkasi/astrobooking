@@ -14,7 +14,7 @@ export class LoginComponent {
 
   constructor(private authService: AuthService, private router: Router) {
     if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/admin/dashboard']);
+      this.router.navigate(['/admin/products']);
     }
   }
 
@@ -25,7 +25,7 @@ export class LoginComponent {
     this.authService.login(this.password).subscribe(success => {
       this.loading = false;
       if (success) {
-        this.router.navigate(['/admin/dashboard']);
+        this.router.navigate(['/admin/products']);
       } else {
         this.error = 'Invalid password';
       }

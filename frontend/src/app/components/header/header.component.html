@@ -1,7 +1,7 @@
 <header [class.scrolled]="isScrolled">
     <div class="container">
         <div class="logo">
-            <a (click)="scrollTo('hero')">Астро ключ</a>
+            <a routerLink="/" (click)="scrollTo('hero')">Астро ключ</a>
         </div>
         <nav [class.active]="isMenuOpen">
             <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
