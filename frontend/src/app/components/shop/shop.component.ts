@@ -9,7 +9,10 @@ declare var paypal: any;
   styleUrls: ['./shop.component.scss']
 })
 export class ShopComponent implements OnInit, AfterViewInit {
+  allProducts: any[] = [];
   products: any[] = [];
+  categories: string[] = [];
+  selectedCategory: string = 'All';
   loading = true;
   error = '';
 
@@ -20,7 +23,9 @@ export class ShopComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.bookingService.getProducts().subscribe({
       next: (data) => {
+        this.allProducts = data;
         this.products = data;
+        this.extractCategories();
         this.loading = false;
         // Buttons will be rendered in ngAfterViewInit or after data loads
         setTimeout(() => this.renderButtons(), 100);
@@ -37,8 +42,27 @@ export class ShopComponent implements OnInit, AfterViewInit {
     // Initial render might be empty if data hasn't loaded
   }
 
+  extractCategories() {
+    const cats = new Set(this.allProducts.map(p => p.category || 'General'));
+    this.categories = ['All', ...Array.from(cats)];
+  }
+
+  filterByCategory(category: string) {
+    this.selectedCategory = category;
+    if (category === 'All') {
+      this.products = this.allProducts;
+    } else {
+      this.products = this.allProducts.filter(p => (p.category || 'General') === category);
+    }
+    // Re-render PayPal buttons for the filtered list
+    setTimeout(() => this.renderButtons(), 100);
+  }
+
   renderButtons() {
+    // We need to match the container to the correct product in the FILTERED list
     this.paypalContainers.forEach((container, index) => {
+      if (index >= this.products.length) return;
+
       const product = this.products[index];
 
       // Clear container just in case

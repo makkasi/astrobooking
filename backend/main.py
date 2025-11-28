@@ -307,9 +307,17 @@ class ProductCreate(BaseModel):
     title: str
     description: str
     price: float
+    category: str = "General"
     password: str
     image_url: str
     pdf_public_id: str
+
+class ProductUpdate(BaseModel):
+    title: str
+    description: str
+    price: float
+    category: str
+    password: str
 
 @app.post("/api/admin/products")
 async def create_product(product: ProductCreate):
@@ -324,6 +332,7 @@ async def create_product(product: ProductCreate):
         "title": product.title,
         "description": product.description,
         "price": product.price,
+        "category": product.category,
         "image_url": product.image_url,
         "pdf_public_id": product.pdf_public_id,
         "timestamp": datetime.now().isoformat()
@@ -331,6 +340,30 @@ async def create_product(product: ProductCreate):
     products_ref.add(new_product)
 
     return {"status": "success", "message": "Product created successfully"}
+
+@app.delete("/api/admin/products/{product_id}")
+def delete_product(product_id: str, password: str):
+    admin_password = os.getenv("ADMIN_PASSWORD", "admin123")
+    if password != admin_password:
+        raise HTTPException(status_code=401, detail="Invalid admin password")
+    
+    db.collection("products").document(product_id).delete()
+    return {"status": "success", "message": "Product deleted"}
+
+@app.put("/api/admin/products/{product_id}")
+def update_product(product_id: str, product: ProductUpdate):
+    admin_password = os.getenv("ADMIN_PASSWORD", "admin123")
+    if product.password != admin_password:
+        raise HTTPException(status_code=401, detail="Invalid admin password")
+    
+    doc_ref = db.collection("products").document(product_id)
+    doc_ref.update({
+        "title": product.title,
+        "description": product.description,
+        "price": product.price,
+        "category": product.category
+    })
+    return {"status": "success", "message": "Product updated"}
 
 @app.post("/api/book")
 def create_booking(booking: Booking):

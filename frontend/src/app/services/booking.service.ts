@@ -47,7 +47,16 @@ export class BookingService {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', preset);
-    // Note: 'dmrgmeugu' is the cloud name extracted from the user's previous input
     return this.http.post(`https://api.cloudinary.com/v1_1/dmrgmeugu/upload`, formData);
+  }
+
+  deleteProduct(productId: string, password: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/admin/products/${productId}`, {
+      params: { password }
+    });
+  }
+
+  updateProduct(productId: string, productData: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/admin/products/${productId}`, productData);
   }
 }

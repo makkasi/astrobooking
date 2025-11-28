@@ -1,44 +1,87 @@
 <section class="admin-section">
-    <div class="container">
-        <h2>Admin Upload</h2>
+    <div class="admin-container">
+        <h2>Admin Dashboard</h2>
 
-        <div *ngIf="message" class="alert success">{{ message }}</div>
-        <div *ngIf="error" class="alert error">{{ error }}</div>
+        <!-- Create / Edit Form -->
+        <div class="form-card">
+            <h3>{{ isEditing ? 'Edit Product' : 'Upload New Product' }}</h3>
 
-        <form (ngSubmit)="onSubmit()" class="upload-form">
-            <div class="form-group">
-                <label>Title</label>
-                <input type="text" [(ngModel)]="product.title" name="title" required>
-            </div>
+            <form (ngSubmit)="onSubmit()">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" [(ngModel)]="product.title" name="title" required>
+                </div>
 
-            <div class="form-group">
-                <label>Description</label>
-                <textarea [(ngModel)]="product.description" name="description" rows="4" required></textarea>
-            </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <input type="text" [(ngModel)]="product.category" name="category" placeholder="e.g. Books, Guides"
+                        required>
+                </div>
 
-            <div class="form-group">
-                <label>Price (EUR)</label>
-                <input type="number" [(ngModel)]="product.price" name="price" required>
-            </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea [(ngModel)]="product.description" name="description" required></textarea>
+                </div>
 
-            <div class="form-group">
-                <label>Cover Image</label>
-                <input type="file" (change)="onFileSelected($event, 'image')" accept="image/*" required>
-            </div>
+                <div class="form-group">
+                    <label>Price (EUR)</label>
+                    <input type="number" [(ngModel)]="product.price" name="price" required>
+                </div>
 
-            <div class="form-group">
-                <label>PDF File</label>
-                <input type="file" (change)="onFileSelected($event, 'pdf')" accept="application/pdf" required>
-            </div>
+                <!-- File inputs only for new products -->
+                <div class="form-group" *ngIf="!isEditing">
+                    <label>Cover Image (Public)</label>
+                    <input type="file" (change)="onFileSelected($event, 'image')" accept="image/*">
+                </div>
 
-            <div class="form-group">
-                <label>Admin Password</label>
-                <input type="password" [(ngModel)]="product.password" name="password" required>
-            </div>
+                <div class="form-group" *ngIf="!isEditing">
+                    <label>PDF File (Private)</label>
+                    <input type="file" (change)="onFileSelected($event, 'pdf')" accept="application/pdf">
+                </div>
 
-            <button type="submit" [disabled]="loading">
-                {{ loading ? 'Uploading...' : 'Upload Product' }}
-            </button>
-        </form>
+                <div class="form-group">
+                    <label>Admin Password</label>
+                    <input type="password" [(ngModel)]="product.password" name="password" required>
+                </div>
+
+                <div class="actions">
+                    <button type="submit" [disabled]="loading">
+                        {{ loading ? 'Processing...' : (isEditing ? 'Update Product' : 'Upload Product') }}
+                    </button>
+                    <button type="button" *ngIf="isEditing" (click)="cancelEdit()" class="cancel-btn">Cancel</button>
+                </div>
+
+                <p class="message success" *ngIf="message">{{ message }}</p>
+                <p class="message error" *ngIf="error">{{ error }}</p>
+            </form>
+        </div>
+
+        <!-- Product List -->
+        <div class="product-list">
+            <h3>Existing Products</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let p of products">
+                        <td><img [src]="p.image_url" alt="cover" width="50"></td>
+                        <td>{{ p.title }}</td>
+                        <td>{{ p.category || 'General' }}</td>
+                        <td>€{{ p.price }}</td>
+                        <td>
+                            <button (click)="startEdit(p)" class="edit-btn">Edit</button>
+                            <button (click)="deleteProduct(p.id)" class="delete-btn">Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </section>

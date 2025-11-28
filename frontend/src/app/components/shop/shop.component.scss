@@ -22,6 +22,39 @@
         font-size: 1.1rem;
     }
 
+    /* Category Filter */
+    .category-filter {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 40px;
+        flex-wrap: wrap;
+
+        button {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+
+            &:hover {
+                border-color: #ffd700;
+                color: #ffd700;
+            }
+
+            &.active {
+                background: #ffd700;
+                color: black;
+                border-color: #ffd700;
+                font-weight: bold;
+            }
+        }
+    }
+
+    /* Responsive Grid */
     .products-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));

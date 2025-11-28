@@ -1,86 +1,157 @@
 .admin-section {
     padding: 120px 0 80px;
     min-height: 100vh;
-    background-color: #f4f4f4;
+    background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+}
 
-    .container {
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 30px;
-        background: white;
-        border-radius: 10px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    }
+.admin-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    color: white;
 
-    h2 {
+    h2,
+    h3 {
         text-align: center;
-        margin-bottom: 30px;
-        color: #333;
+        margin-bottom: 20px;
+        color: #ffd700;
+    }
+}
+
+.form-card {
+    margin-bottom: 40px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
     }
 
-    .form-group {
-        margin-bottom: 20px;
+    input,
+    textarea {
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
 
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #555;
+        &:focus {
+            outline: none;
+            border-color: #ffd700;
+        }
+    }
+
+    textarea {
+        height: 100px;
+    }
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+
+    button {
+        flex: 1;
+        padding: 12px;
+        border: none;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &[type="submit"] {
+            background: linear-gradient(45deg, #ffd700, #ffaa00);
+            color: black;
+
+            &:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+            }
+
+            &:disabled {
+                background: #555;
+                cursor: not-allowed;
+            }
         }
 
-        input[type="text"],
-        input[type="number"],
-        input[type="password"],
-        textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 1rem;
+        &.cancel-btn {
+            background: #555;
+            color: white;
 
-            &:focus {
-                border-color: var(--accent-color);
-                outline: none;
+            &:hover {
+                background: #777;
             }
         }
     }
+}
 
-    button {
-        width: 100%;
-        padding: 12px;
-        background-color: var(--accent-color);
-        color: #1a1a1a;
-        border: none;
-        border-radius: 5px;
-        font-size: 1.1rem;
-        font-weight: bold;
-        cursor: pointer;
-        transition: background 0.3s;
+.message {
+    text-align: center;
+    margin-top: 15px;
+    font-weight: bold;
 
-        &:hover {
-            background-color: darken(#FFD700, 10%);
-        }
-
-        &:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
+    &.success {
+        color: #4caf50;
     }
 
-    .alert {
-        padding: 15px;
-        margin-bottom: 20px;
-        border-radius: 5px;
-        text-align: center;
+    &.error {
+        color: #f44336;
+    }
+}
 
-        &.success {
-            background-color: #d4edda;
-            color: #155724;
+/* Product List Table */
+.product-list {
+    overflow-x: auto;
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+
+        th,
+        td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        &.error {
-            background-color: #f8d7da;
-            color: #721c24;
+        th {
+            color: #ffd700;
+        }
+
+        img {
+            border-radius: 4px;
+        }
+
+        .edit-btn,
+        .delete-btn {
+            padding: 5px 10px;
+            margin-right: 5px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .edit-btn {
+            background: #2196f3;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #f44336;
+            color: white;
         }
     }
 }
