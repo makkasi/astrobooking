@@ -218,11 +218,22 @@ def create_order(order: Order):
     new_order['product_title'] = product_data.get('title', 'Unknown')
     orders_ref.add(new_order)
     
-    # 4. Share File and Send Email
-    pdf_drive_id = product_data.get('pdf_drive_id')
-    if pdf_drive_id:
-        share_file_with_email(pdf_drive_id, order.email)
+    # 4. Generate Signed URL and Send Email
+    pdf_public_id = product_data.get('pdf_public_id')
+    pdf_url = '#'
     
+    if pdf_public_id:
+        # Generate signed URL valid for 7 days (60*60*24*7 seconds)
+        # resource_type="raw" because we uploaded it as raw
+        pdf_url, options = cloudinary.utils.private_download_url(
+            pdf_public_id, 
+            "raw", 
+            attachment=True, # Force download
+            expires_at=int(datetime.now().timestamp() + 60*60*24*7)
+        )
+        # Add the generated URL to the product data passed to email function
+        product_data['pdf_url'] = pdf_url
+
     send_product_email(order.email, order.name, product_data)
     
     return {"status": "success", "message": "Order processed"}
@@ -284,59 +295,16 @@ def send_product_email(email: str, name: str, product: dict):
     except Exception as e:
         print(f"Error sending product email: {e}")
 
-from fastapi import File, UploadFile, Form
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseUpload
-from google.oauth2 import service_account
-import io
+import cloudinary
+import cloudinary.uploader
+import cloudinary.utils
 
-# Initialize Drive API
-SCOPES = ['https://www.googleapis.com/auth/drive']
-DRIVE_FOLDER_ID = "1dky1FDMaKSR_EPlM6G72YjeHcDl1vYRi"
-
-def get_drive_service():
-    if firebase_creds:
-        cred_dict = json.loads(firebase_creds)
-        creds = service_account.Credentials.from_service_account_info(cred_dict, scopes=SCOPES)
-    else:
-        creds = service_account.Credentials.from_service_account_file("serviceAccountKey.json", scopes=SCOPES)
-    return build('drive', 'v3', credentials=creds)
-
-def upload_to_drive(file_content, filename, mime_type, public=False):
-    service = get_drive_service()
-    
-    file_metadata = {
-        'name': filename,
-        'parents': [DRIVE_FOLDER_ID]
-    }
-    
-    media = MediaIoBaseUpload(io.BytesIO(file_content), mimetype=mime_type, resumable=True)
-    
-    file = service.files().create(body=file_metadata, media_body=media, fields='id, webViewLink').execute()
-    file_id = file.get('id')
-    
-    if public:
-        # Make public (Reader: anyone)
-        permission = {
-            'type': 'anyone',
-            'role': 'reader',
-        }
-        service.permissions().create(fileId=file_id, body=permission).execute()
-        
-    return file_id, file.get('webViewLink')
-
-def share_file_with_email(file_id, email):
-    service = get_drive_service()
-    try:
-        permission = {
-            'type': 'user',
-            'role': 'reader',
-            'emailAddress': email
-        }
-        service.permissions().create(fileId=file_id, body=permission, emailMessage="Here is your purchased book!").execute()
-        print(f"Shared file {file_id} with {email}")
-    except Exception as e:
-        print(f"Error sharing file: {e}")
+# Initialize Cloudinary
+# In production, set CLOUDINARY_URL env var.
+# For now, we can set it programmatically if env var is missing, but best practice is env var.
+if not os.getenv("CLOUDINARY_URL"):
+    # Fallback for local dev if .env is not set (User provided this)
+    os.environ["CLOUDINARY_URL"] = "cloudinary://399362378272735:1V7DPYzF7DpwWNjoHRsb2rGc0iE@dmrgmeugu"
 
 @app.post("/api/admin/products")
 async def create_product(
@@ -352,21 +320,20 @@ async def create_product(
     if password != admin_password:
         raise HTTPException(status_code=401, detail="Invalid admin password")
 
-    # 2. Upload Image to Drive (Public)
-    image_content = await image.read()
-    image_id, image_url = upload_to_drive(image_content, image.filename, image.content_type, public=True)
-    
-    # For images, webViewLink is a preview page. To embed, we might need a direct link, 
-    # but Drive doesn't easily give "hotlinkable" URLs. 
-    # However, 'webViewLink' works for clicking. 
-    # For <img> tags, we can try using the thumbnail link or a specific export link, 
-    # but let's stick to the official link for now. 
-    # Actually, for <img> tags, we can use `https://drive.google.com/uc?id={FILE_ID}` hack.
-    image_direct_link = f"https://drive.google.com/uc?id={image_id}"
+    # 2. Upload Image to Cloudinary (Public)
+    # Cloudinary handles file objects directly
+    image_res = cloudinary.uploader.upload(image.file, resource_type="image", folder="astrobooking/images")
+    image_url = image_res['secure_url']
 
-    # 3. Upload PDF to Drive (Private)
-    pdf_content = await pdf.read()
-    pdf_id, pdf_url = upload_to_drive(pdf_content, pdf.filename, pdf.content_type, public=False)
+    # 3. Upload PDF to Cloudinary (Private/Authenticated)
+    # type="authenticated" means only signed URLs can access it
+    pdf_res = cloudinary.uploader.upload(
+        pdf.file, 
+        resource_type="raw", 
+        type="authenticated", 
+        folder="astrobooking/pdfs"
+    )
+    pdf_public_id = pdf_res['public_id']
 
     # 4. Save to Firestore
     products_ref = db.collection("products")
@@ -374,9 +341,8 @@ async def create_product(
         "title": title,
         "description": description,
         "price": price,
-        "image_url": image_direct_link, # Use the direct link hack for <img> tags
-        "pdf_drive_id": pdf_id,         # Store ID to share later
-        "pdf_url": pdf_url,             # Store URL for reference
+        "image_url": image_url,
+        "pdf_public_id": pdf_public_id, # Store ID to generate link later
         "timestamp": datetime.now().isoformat()
     }
     products_ref.add(new_product)
