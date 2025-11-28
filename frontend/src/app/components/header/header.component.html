@@ -3,14 +3,13 @@
         <div class="logo">
             <a (click)="scrollTo('hero')">Астро ключ</a>
         </div>
-        <nav>
-            <ul>
-                <li><a routerLink="/" fragment="hero" (click)="scrollTo('hero')">Начало</a></li>
-                <li><a routerLink="/" fragment="about" (click)="scrollTo('about')">За мен</a></li>
-                <li><a routerLink="/shop" routerLinkActive="active">Магазин</a></li>
-                <li><a routerLink="/" fragment="booking" (click)="scrollTo('booking')" class="cta-btn">Запази час</a>
-                </li>
-            </ul>
+        <nav [class.active]="isMenuOpen">
+            <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+                (click)="isMenuOpen = false; scrollTo('hero')">Начало</a>
+            <a routerLink="/shop" routerLinkActive="active" (click)="isMenuOpen = false">Магазин</a>
+            <a routerLink="/articles" routerLinkActive="active" (click)="isMenuOpen = false">Астро писания</a>
+            <a routerLink="/" fragment="about" (click)="isMenuOpen = false; scrollTo('about')">За мен</a>
+            <a routerLink="/" fragment="contact" (click)="isMenuOpen = false; scrollTo('contact')">Контакти</a>
         </nav>
     </div>
 </header>

@@ -7,6 +7,7 @@ import { Component, HostListener } from '@angular/core';
 })
 export class HeaderComponent {
   isScrolled = false;
+  isMenuOpen = false;
 
   @HostListener('window:scroll', [])
   onWindowScroll() {

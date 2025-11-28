@@ -1,0 +1,32 @@
+<div class="products-container">
+    <div class="header">
+        <h2>Products</h2>
+        <a routerLink="new" class="create-btn">Add New Product</a>
+    </div>
+
+    <div class="product-list">
+        <table>
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let p of products">
+                    <td><img [src]="p.image_url" alt="cover" width="50"></td>
+                    <td>{{ p.title }}</td>
+                    <td>{{ p.category || 'General' }}</td>
+                    <td>€{{ p.price }}</td>
+                    <td>
+                        <a [routerLink]="[p.id]" class="edit-btn">Edit</a>
+                        <button (click)="deleteProduct(p.id)" class="delete-btn">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

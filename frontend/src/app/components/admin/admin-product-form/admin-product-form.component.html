@@ -1,0 +1,45 @@
+<div class="form-container">
+    <div class="header">
+        <h2>{{ isEditing ? 'Edit Product' : 'Create New Product' }}</h2>
+        <a routerLink="/admin/products" class="back-link">← Back to List</a>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" class="product-form">
+        <div class="form-group">
+            <label>Title</label>
+            <input type="text" [(ngModel)]="product.title" name="title" required>
+        </div>
+
+        <div class="form-group">
+            <label>Category</label>
+            <input type="text" [(ngModel)]="product.category" name="category" placeholder="e.g. Books, Guides" required>
+        </div>
+
+        <div class="form-group">
+            <label>Description</label>
+            <textarea [(ngModel)]="product.description" name="description" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Price (EUR)</label>
+            <input type="number" [(ngModel)]="product.price" name="price" required>
+        </div>
+
+        <!-- File inputs only for new products -->
+        <div class="form-group" *ngIf="!isEditing">
+            <label>Cover Image (Public)</label>
+            <input type="file" (change)="onFileSelected($event, 'image')" accept="image/*">
+        </div>
+
+        <div class="form-group" *ngIf="!isEditing">
+            <label>PDF File (Private)</label>
+            <input type="file" (change)="onFileSelected($event, 'pdf')" accept="application/pdf">
+        </div>
+
+        <button type="submit" [disabled]="loading">
+            {{ loading ? 'Processing...' : (isEditing ? 'Update Product' : 'Create Product') }}
+        </button>
+
+        <p class="error" *ngIf="error">{{ error }}</p>
+    </form>
+</div>

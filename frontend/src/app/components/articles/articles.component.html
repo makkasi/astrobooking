@@ -1,0 +1,21 @@
+<div class="articles-page">
+    <div class="container">
+        <h1>Астро писания</h1>
+
+        <div class="loading" *ngIf="loading">Loading articles...</div>
+
+        <div class="articles-grid" *ngIf="!loading">
+            <div class="article-card" *ngFor="let article of articles" [routerLink]="['/articles', article.id]">
+                <div class="image-wrapper">
+                    <img [src]="article.image_url" [alt]="article.title">
+                </div>
+                <div class="content">
+                    <h3>{{ article.title }}</h3>
+                    <span class="date">{{ article.timestamp | date }}</span>
+                    <p class="excerpt" [innerHTML]="article.content | slice:0:150"></p>
+                    <span class="read-more">Read more →</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

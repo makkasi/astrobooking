@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Query, File, UploadFile, Form
+from fastapi import FastAPI, HTTPException, Query, File, UploadFile, Form, Body
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
@@ -319,6 +319,13 @@ class ProductUpdate(BaseModel):
     category: str
     password: str
 
+@app.post("/api/admin/verify")
+def verify_admin(password: str = Body(..., embed=True)):
+    admin_password = os.getenv("ADMIN_PASSWORD", "admin123")
+    if password != admin_password:
+        raise HTTPException(status_code=401, detail="Invalid password")
+    return {"status": "success", "message": "Verified"}
+
 @app.post("/api/admin/products")
 async def create_product(product: ProductCreate):
     # 1. Verify Password
@@ -388,3 +395,73 @@ def create_booking(booking: Booking):
     send_email(booking)
     
     return {"status": "success", "message": "Booking confirmed"}
+
+class ArticleCreate(BaseModel):
+    title: str
+    content: str
+    image_url: str
+    password: str
+
+class ArticleUpdate(BaseModel):
+    title: str
+    content: str
+    image_url: str
+    password: str
+
+@app.get("/api/articles")
+def get_articles():
+    articles_ref = db.collection("articles")
+    docs = articles_ref.stream()
+    articles = []
+    for doc in docs:
+        article = doc.to_dict()
+        article['id'] = doc.id
+        articles.append(article)
+    return articles
+
+@app.get("/api/articles/{article_id}")
+def get_article(article_id: str):
+    doc = db.collection("articles").document(article_id).get()
+    if not doc.exists:
+        raise HTTPException(status_code=404, detail="Article not found")
+    article = doc.to_dict()
+    article['id'] = doc.id
+    return article
+
+@app.post("/api/admin/articles")
+def create_article(article: ArticleCreate):
+    admin_password = os.getenv("ADMIN_PASSWORD", "admin123")
+    if article.password != admin_password:
+        raise HTTPException(status_code=401, detail="Invalid admin password")
+    
+    new_article = {
+        "title": article.title,
+        "content": article.content,
+        "image_url": article.image_url,
+        "timestamp": datetime.now().isoformat()
+    }
+    db.collection("articles").add(new_article)
+    return {"status": "success", "message": "Article created"}
+
+@app.put("/api/admin/articles/{article_id}")
+def update_article(article_id: str, article: ArticleUpdate):
+    admin_password = os.getenv("ADMIN_PASSWORD", "admin123")
+    if article.password != admin_password:
+        raise HTTPException(status_code=401, detail="Invalid admin password")
+    
+    doc_ref = db.collection("articles").document(article_id)
+    doc_ref.update({
+        "title": article.title,
+        "content": article.content,
+        "image_url": article.image_url
+    })
+    return {"status": "success", "message": "Article updated"}
+
+@app.delete("/api/admin/articles/{article_id}")
+def delete_article(article_id: str, password: str):
+    admin_password = os.getenv("ADMIN_PASSWORD", "admin123")
+    if password != admin_password:
+        raise HTTPException(status_code=401, detail="Invalid admin password")
+    
+    db.collection("articles").document(article_id).delete()
+    return {"status": "success", "message": "Article deleted"}

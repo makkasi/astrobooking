@@ -1,0 +1,21 @@
+<div class="article-detail-page">
+    <div class="container" *ngIf="article">
+        <div class="article-header">
+            <h1>{{ article.title }}</h1>
+            <span class="date">{{ article.timestamp | date:'longDate' }}</span>
+        </div>
+
+        <div class="featured-image">
+            <img [src]="article.image_url" [alt]="article.title">
+        </div>
+
+        <div class="article-content ql-editor" [innerHTML]="article.content"></div>
+
+        <div class="back-link">
+            <a routerLink="/articles">← Back to Articles</a>
+        </div>
+    </div>
+
+    <div class="loading" *ngIf="loading">Loading...</div>
+    <div class="error" *ngIf="error">{{ error }}</div>
+</div>

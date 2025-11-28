@@ -1,0 +1,30 @@
+<div class="articles-container">
+    <div class="header">
+        <h2>Articles</h2>
+        <a routerLink="new" class="create-btn">Write New Article</a>
+    </div>
+
+    <div class="article-list">
+        <table>
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Title</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let a of articles">
+                    <td><img [src]="a.image_url" alt="cover" width="50"></td>
+                    <td>{{ a.title }}</td>
+                    <td>{{ a.timestamp | date }}</td>
+                    <td>
+                        <a [routerLink]="[a.id]" class="edit-btn">Edit</a>
+                        <button (click)="deleteArticle(a.id)" class="delete-btn">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

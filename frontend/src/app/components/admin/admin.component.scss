@@ -1,157 +1,71 @@
-.admin-section {
-    padding: 120px 0 80px;
+.admin-layout {
+    display: flex;
     min-height: 100vh;
-    background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+    padding-top: 80px; // Space for fixed header
 }
 
-.admin-container {
-    max-width: 800px;
-    margin: 0 auto;
+.admin-sidebar {
+    width: 250px;
+    background: rgba(0, 0, 0, 0.8);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
     padding: 20px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 15px;
-    backdrop-filter: blur(10px);
-    color: white;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 80px;
+    bottom: 0;
+    left: 0;
 
-    h2,
     h3 {
-        text-align: center;
-        margin-bottom: 20px;
         color: #ffd700;
-    }
-}
-
-.form-card {
-    margin-bottom: 40px;
-    padding: 20px;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
-}
-
-.form-group {
-    margin-bottom: 15px;
-
-    label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: bold;
+        margin-bottom: 30px;
+        text-align: center;
     }
 
-    input,
-    textarea {
-        width: 100%;
+    nav {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+
+        a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background 0.3s;
+
+            &:hover {
+                background: rgba(255, 255, 255, 0.1);
+            }
+
+            &.active {
+                background: #ffd700;
+                color: black;
+                font-weight: bold;
+            }
+        }
+    }
+
+    .logout-btn {
+        background: #f44336;
+        color: white;
+        border: none;
         padding: 10px;
         border-radius: 5px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-
-        &:focus {
-            outline: none;
-            border-color: #ffd700;
-        }
-    }
-
-    textarea {
-        height: 100px;
-    }
-}
-
-.actions {
-    display: flex;
-    gap: 10px;
-
-    button {
-        flex: 1;
-        padding: 12px;
-        border: none;
-        border-radius: 5px;
-        font-weight: bold;
         cursor: pointer;
-        transition: all 0.3s ease;
+        font-weight: bold;
 
-        &[type="submit"] {
-            background: linear-gradient(45deg, #ffd700, #ffaa00);
-            color: black;
-
-            &:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
-            }
-
-            &:disabled {
-                background: #555;
-                cursor: not-allowed;
-            }
-        }
-
-        &.cancel-btn {
-            background: #555;
-            color: white;
-
-            &:hover {
-                background: #777;
-            }
+        &:hover {
+            background: #d32f2f;
         }
     }
 }
 
-.message {
-    text-align: center;
-    margin-top: 15px;
-    font-weight: bold;
-
-    &.success {
-        color: #4caf50;
-    }
-
-    &.error {
-        color: #f44336;
-    }
-}
-
-/* Product List Table */
-.product-list {
-    overflow-x: auto;
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-
-        th,
-        td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        th {
-            color: #ffd700;
-        }
-
-        img {
-            border-radius: 4px;
-        }
-
-        .edit-btn,
-        .delete-btn {
-            padding: 5px 10px;
-            margin-right: 5px;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-
-        .edit-btn {
-            background: #2196f3;
-            color: white;
-        }
-
-        .delete-btn {
-            background: #f44336;
-            color: white;
-        }
-    }
+.admin-content {
+    flex: 1;
+    margin-left: 250px; // Offset for sidebar
+    padding: 30px;
+    background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+    min-height: calc(100vh - 80px);
 }

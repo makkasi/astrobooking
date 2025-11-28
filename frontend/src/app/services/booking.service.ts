@@ -59,4 +59,27 @@ export class BookingService {
   updateProduct(productId: string, productData: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/admin/products/${productId}`, productData);
   }
+
+  // Articles
+  getArticles(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/articles`);
+  }
+
+  getArticle(id: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/articles/${id}`);
+  }
+
+  createArticle(articleData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/admin/articles`, articleData);
+  }
+
+  updateArticle(id: string, articleData: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/admin/articles/${id}`, articleData);
+  }
+
+  deleteArticle(id: string, password: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/admin/articles/${id}`, {
+      params: { password }
+    });
+  }
 }
