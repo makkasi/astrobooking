@@ -46,26 +46,51 @@ export class AdminComponent {
     this.message = '';
     this.error = '';
 
-    const formData = new FormData();
-    formData.append('title', this.product.title);
-    formData.append('description', this.product.description);
-    formData.append('price', (this.product.price as number).toString());
-    formData.append('password', this.product.password);
-    formData.append('image', this.imageFile);
-    formData.append('pdf', this.pdfFile);
+    // 1. Upload Image
+    this.bookingService.uploadToCloudinary(this.imageFile, 'preset_name').subscribe({
+      next: (imageRes) => {
+        const imageUrl = imageRes.secure_url;
 
-    this.bookingService.uploadProduct(formData).subscribe({
-      next: (res) => {
-        this.message = 'Product uploaded successfully!';
-        this.loading = false;
-        // Reset form
-        this.product = { title: '', description: '', price: null, password: '' };
-        this.imageFile = null;
-        this.pdfFile = null;
+        // 2. Upload PDF
+        this.bookingService.uploadToCloudinary(this.pdfFile!, 'preset_name').subscribe({
+          next: (pdfRes) => {
+            const pdfPublicId = pdfRes.public_id;
+
+            // 3. Send Data to Backend
+            const productData = {
+              title: this.product.title,
+              description: this.product.description,
+              price: this.product.price,
+              password: this.product.password,
+              image_url: imageUrl,
+              pdf_public_id: pdfPublicId
+            };
+
+            this.bookingService.uploadProduct(productData).subscribe({
+              next: () => {
+                this.message = 'Product uploaded successfully!';
+                this.loading = false;
+                this.product = { title: '', description: '', price: null, password: '' };
+                this.imageFile = null;
+                this.pdfFile = null;
+              },
+              error: (err) => {
+                console.error(err);
+                this.error = 'Failed to save product to database.';
+                this.loading = false;
+              }
+            });
+          },
+          error: (err) => {
+            console.error(err);
+            this.error = 'Failed to upload PDF to Cloudinary.';
+            this.loading = false;
+          }
+        });
       },
       error: (err) => {
         console.error(err);
-        this.error = err.error?.detail || 'Upload failed. Check password or try again.';
+        this.error = 'Failed to upload Image to Cloudinary.';
         this.loading = false;
       }
     });

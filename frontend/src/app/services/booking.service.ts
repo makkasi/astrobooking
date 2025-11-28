@@ -39,7 +39,15 @@ export class BookingService {
     return this.http.post(`${this.apiUrl}/orders`, order);
   }
 
-  uploadProduct(formData: FormData): Observable<any> {
-    return this.http.post(`${this.apiUrl}/admin/products`, formData);
+  uploadProduct(productData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/admin/products`, productData);
+  }
+
+  uploadToCloudinary(file: File, preset: string): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', preset);
+    // Note: 'dmrgmeugu' is the cloud name extracted from the user's previous input
+    return this.http.post(`https://api.cloudinary.com/v1_1/dmrgmeugu/upload`, formData);
   }
 }

@@ -303,43 +303,29 @@ import cloudinary.utils
 if not os.getenv("CLOUDINARY_URL"):
     print("Warning: CLOUDINARY_URL not set")
 
+class ProductCreate(BaseModel):
+    title: str
+    description: str
+    price: float
+    password: str
+    image_url: str
+    pdf_public_id: str
+
 @app.post("/api/admin/products")
-async def create_product(
-    title: str = Form(...),
-    description: str = Form(...),
-    price: float = Form(...),
-    password: str = Form(...),
-    image: UploadFile = File(...),
-    pdf: UploadFile = File(...)
-):
+async def create_product(product: ProductCreate):
     # 1. Verify Password
     admin_password = os.getenv("ADMIN_PASSWORD", "admin123")
-    if password != admin_password:
+    if product.password != admin_password:
         raise HTTPException(status_code=401, detail="Invalid admin password")
 
-    # 2. Upload Image to Cloudinary (Public)
-    # Cloudinary handles file objects directly
-    image_res = cloudinary.uploader.upload(image.file, resource_type="image", folder="astrobooking/images")
-    image_url = image_res['secure_url']
-
-    # 3. Upload PDF to Cloudinary (Private/Authenticated)
-    # type="authenticated" means only signed URLs can access it
-    pdf_res = cloudinary.uploader.upload(
-        pdf.file, 
-        resource_type="raw", 
-        type="authenticated", 
-        folder="astrobooking/pdfs"
-    )
-    pdf_public_id = pdf_res['public_id']
-
-    # 4. Save to Firestore
+    # 2. Save to Firestore
     products_ref = db.collection("products")
     new_product = {
-        "title": title,
-        "description": description,
-        "price": price,
-        "image_url": image_url,
-        "pdf_public_id": pdf_public_id, # Store ID to generate link later
+        "title": product.title,
+        "description": product.description,
+        "price": product.price,
+        "image_url": product.image_url,
+        "pdf_public_id": product.pdf_public_id,
         "timestamp": datetime.now().isoformat()
     }
     products_ref.add(new_product)
