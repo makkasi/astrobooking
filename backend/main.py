@@ -300,10 +300,8 @@ import cloudinary.utils
 
 # Initialize Cloudinary
 # In production, set CLOUDINARY_URL env var.
-# For now, we can set it programmatically if env var is missing, but best practice is env var.
 if not os.getenv("CLOUDINARY_URL"):
-    # Fallback for local dev if .env is not set (User provided this)
-    os.environ["CLOUDINARY_URL"] = "cloudinary://399362378272735:1V7DPYzF7DpwWNjoHRsb2rGc0iE@dmrgmeugu"
+    print("Warning: CLOUDINARY_URL not set")
 
 @app.post("/api/admin/products")
 async def create_product(
