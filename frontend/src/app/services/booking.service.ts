@@ -30,4 +30,16 @@ export class BookingService {
   createBooking(booking: Booking): Observable<any> {
     return this.http.post(`${this.apiUrl}/book`, booking);
   }
+
+  getProducts(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/products`);
+  }
+
+  createOrder(order: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/orders`, order);
+  }
+
+  uploadProduct(formData: FormData): Observable<any> {
+    return this.http.post(`${this.apiUrl}/admin/products`, formData);
+  }
 }

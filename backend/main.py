@@ -6,7 +6,7 @@ import os
 import json
 from datetime import datetime
 import firebase_admin
-from firebase_admin import credentials, firestore
+from firebase_admin import credentials, firestore, storage
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -25,8 +25,12 @@ else:
     # Fallback to local file
     cred = credentials.Certificate("serviceAccountKey.json")
 
-firebase_admin.initialize_app(cred)
+# Initialize with Storage Bucket
+firebase_admin.initialize_app(cred, {
+    'storageBucket': 'astrobooking-5a8d6.firebasestorage.app' 
+})
 db = firestore.client()
+bucket = storage.bucket()
 
 app = FastAPI()
 
@@ -165,6 +169,161 @@ def check_availability(date: str):
     
     # If day not booked, all hours 9-17 are available
     return {"available_hours": list(range(9, 18))}
+
+class Product(BaseModel):
+    id: Optional[str] = None
+    title: str
+    description: str
+    price: float
+    image_url: str
+    pdf_url: Optional[str] = None # Internal use only
+
+class Order(BaseModel):
+    product_id: str
+    paypal_order_id: str
+    email: str
+    name: str
+
+@app.get("/api/products")
+def get_products():
+    products_ref = db.collection("products")
+    docs = products_ref.stream()
+    products = []
+    for doc in docs:
+        p_data = doc.to_dict()
+        # Hide the PDF URL from the public API
+        if 'pdf_url' in p_data:
+            del p_data['pdf_url']
+        p_data['id'] = doc.id
+        products.append(p_data)
+    return products
+
+@app.post("/api/orders")
+def create_order(order: Order):
+    # 1. Verify Product exists
+    product_ref = db.collection("products").document(order.product_id)
+    product_doc = product_ref.get()
+    
+    if not product_doc.exists:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    product_data = product_doc.to_dict()
+    
+    # 2. (Optional) Verify PayPal Order with PayPal API
+    # For now, we assume the client is honest in this MVP phase.
+    # In production, you MUST verify the order_id with PayPal to ensure payment was actually made.
+    
+    # 3. Save Order to Firestore
+    orders_ref = db.collection("orders")
+    new_order = order.dict()
+    new_order['timestamp'] = datetime.now().isoformat()
+    new_order['amount'] = product_data.get('price', 0)
+    new_order['product_title'] = product_data.get('title', 'Unknown')
+    orders_ref.add(new_order)
+    
+    # 4. Send Email with PDF Link
+    send_product_email(order.email, order.name, product_data)
+    
+    return {"status": "success", "message": "Order processed"}
+
+def send_product_email(email: str, name: str, product: dict):
+    sender_email = os.getenv("MAIL_USERNAME")
+    password = os.getenv("MAIL_PASSWORD")
+    
+    message = MIMEMultipart("alternative")
+    message["Subject"] = f"Вашата поръчка: {product.get('title')}"
+    message["From"] = sender_email
+    message["To"] = email
+    
+    pdf_url = product.get('pdf_url', '#')
+    
+    text = f"""\
+    Здравейте {name},
+    
+    Благодарим ви за поръчката!
+    
+    Можете да изтеглите "{product.get('title')}" от следния линк:
+    {pdf_url}
+    
+    Поздрави,
+    Екипът на Астро ключ
+    """
+    
+    html = f"""\
+    <html>
+      <body>
+        <h2>Благодарим ви за поръчката!</h2>
+        <p>Здравейте {name},</p>
+        <p>Вие успешно закупихте <strong>"{product.get('title')}"</strong>.</p>
+        <p>
+            <a href="{pdf_url}" style="background-color: #FFD700; color: #000; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                Изтегли PDF
+            </a>
+        </p>
+        <p>Ако бутонът не работи, копирайте този линк във вашия браузър:</p>
+        <p>{pdf_url}</p>
+        <br>
+        <p>Поздрави,<br>Екипът на Астро ключ</p>
+      </body>
+    </html>
+    """
+    
+    message.attach(MIMEText(text, "plain"))
+    message.attach(MIMEText(html, "html"))
+    
+    try:
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+            server.starttls()
+            server.login(sender_email, password)
+            server.sendmail(sender_email, email, message.as_string())
+        print(f"Product email sent to {email}")
+    except Exception as e:
+        print(f"Error sending product email: {e}")
+
+    except Exception as e:
+        print(f"Error sending product email: {e}")
+
+from fastapi import File, UploadFile, Form
+
+@app.post("/api/admin/products")
+async def create_product(
+    title: str = Form(...),
+    description: str = Form(...),
+    price: float = Form(...),
+    password: str = Form(...),
+    image: UploadFile = File(...),
+    pdf: UploadFile = File(...)
+):
+    # 1. Verify Password
+    admin_password = os.getenv("ADMIN_PASSWORD", "admin123") # Default fallback
+    if password != admin_password:
+        raise HTTPException(status_code=401, detail="Invalid admin password")
+
+    # 2. Upload Image to Firebase Storage
+    image_blob = bucket.blob(f"products/images/{image.filename}")
+    image_blob.upload_from_file(image.file, content_type=image.content_type)
+    image_blob.make_public()
+    image_url = image_blob.public_url
+
+    # 3. Upload PDF to Firebase Storage
+    pdf_blob = bucket.blob(f"products/pdfs/{pdf.filename}")
+    pdf_blob.upload_from_file(pdf.file, content_type=pdf.content_type)
+    pdf_blob.make_public()
+    pdf_url = pdf_blob.public_url
+
+    # 4. Save to Firestore
+    products_ref = db.collection("products")
+    new_product = {
+        "title": title,
+        "description": description,
+        "price": price,
+        "image_url": image_url,
+        "pdf_url": pdf_url,
+        "timestamp": datetime.now().isoformat()
+    }
+    products_ref.add(new_product)
+
+    return {"status": "success", "message": "Product created successfully"}
 
 @app.post("/api/book")
 def create_booking(booking: Booking):

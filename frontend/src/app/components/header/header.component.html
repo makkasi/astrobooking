@@ -5,9 +5,11 @@
         </div>
         <nav>
             <ul>
-                <li><a (click)="scrollTo('hero')">Начало</a></li>
-                <li><a (click)="scrollTo('about')">За мен</a></li>
-                <li><a (click)="scrollTo('booking')" class="cta-btn">Запази час</a></li>
+                <li><a routerLink="/" fragment="hero" (click)="scrollTo('hero')">Начало</a></li>
+                <li><a routerLink="/" fragment="about" (click)="scrollTo('about')">За мен</a></li>
+                <li><a routerLink="/shop" routerLinkActive="active">Магазин</a></li>
+                <li><a routerLink="/" fragment="booking" (click)="scrollTo('booking')" class="cta-btn">Запази час</a>
+                </li>
             </ul>
         </nav>
     </div>

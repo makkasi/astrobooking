@@ -9,6 +9,18 @@ import { BookingComponent } from './components/booking/booking.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { HeaderComponent } from './components/header/header.component';
 import { AboutComponent } from './components/about/about.component';
+import { ShopComponent } from './components/shop/shop.component';
+
+import { RouterModule, Routes } from '@angular/router';
+import { HomeComponent } from './components/home/home.component';
+import { AdminComponent } from './components/admin/admin.component';
+
+const routes: Routes = [
+  { path: '', component: HomeComponent },
+  { path: 'shop', component: ShopComponent },
+  { path: 'admin', component: AdminComponent },
+  { path: '**', redirectTo: '' }
+];
 
 @NgModule({
   declarations: [
@@ -17,13 +29,17 @@ import { AboutComponent } from './components/about/about.component';
     BookingComponent,
     FooterComponent,
     HeaderComponent,
-    AboutComponent
+    AboutComponent,
+    ShopComponent,
+    HomeComponent,
+    AdminComponent
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    RouterModule.forRoot(routes, { scrollPositionRestoration: 'enabled', anchorScrolling: 'enabled' })
   ],
   providers: [],
   bootstrap: [AppComponent]

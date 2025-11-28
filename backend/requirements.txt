@@ -3,3 +3,4 @@ uvicorn
 pydantic
 firebase-admin
 python-dotenv
+python-multipart

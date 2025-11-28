@@ -1,0 +1,29 @@
+<section class="shop-section">
+    <div class="container">
+        <h2>Магазин</h2>
+        <p class="subtitle">Електронни книги и ръководства</p>
+
+        <div *ngIf="loading" class="loading">Зареждане на продукти...</div>
+        <div *ngIf="error" class="error">{{ error }}</div>
+
+        <div class="products-grid" *ngIf="!loading && !error">
+            <div class="product-card" *ngFor="let product of products">
+                <div class="image-container">
+                    <img [src]="product.image_url" [alt]="product.title">
+                </div>
+                <div class="product-info">
+                    <h3>{{ product.title }}</h3>
+                    <p class="description">{{ product.description }}</p>
+                    <div class="price-row">
+                        <span class="price">{{ product.price | currency:'EUR' }}</span>
+                    </div>
+                    <div #paypalContainer class="paypal-container"></div>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="!loading && products.length === 0" class="no-products">
+            <p>Все още няма добавени продукти. Моля проверете по-късно.</p>
+        </div>
+    </div>
+</section>
